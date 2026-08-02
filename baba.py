@@ -11,61 +11,80 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# 🖼️ LOCAL IMAGES LOADING & BACKGROUND SETUP
+# 🛠️ HELPER FUNCTIONS (IMAGE FINDER & BASE64 CONVERTER)
 # -----------------------------------------------------------------------------
-# Function to convert local image to base64 for CSS background
+
+def find_image_path(base_name):
+    """
+    Check karega ke image jpg, JPG, png, ya jpeg me se kisi bhi naam se exist karti hai ya nahi.
+    """
+    extensions = ['.jpg', '.JPG', '.png', '.PNG', '.jpeg', '.JPEG']
+    for ext in extensions:
+        full_path = os.path.join("images", f"{base_name}{ext}")
+        if os.path.exists(full_path):
+            return full_path
+    return None
+
 def get_image_base64(image_path):
-    if os.path.exists(image_path):
+    """Local image ko base64 CSS background ke liye convert karta hai."""
+    if image_path and os.path.exists(image_path):
         with open(image_path, "rb") as img_file:
             return base64.b64encode(img_file.read()).decode()
     return ""
 
-# Background ke liye pehli photo (pic1.jpg) use kar rahe hain
-bg_image_path = "images/pic1.jpg"
-bg_base64 = get_image_base64(bg_image_path)
+# -----------------------------------------------------------------------------
+# 🖼️ BACKGROUND IMAGE SETUP (pic1)
+# -----------------------------------------------------------------------------
 
-# Custom CSS for Background and Card Styling
-bg_css = f"""
-<style>
-.stApp {{
-    background: linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), 
-                url("data:image/jpg;base64,{bg_base64}");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-}}
+bg_img_path = find_image_path("pic1")
+bg_base64 = get_image_base64(bg_img_path)
 
-.heart-card {{
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
-    margin-bottom: 25px;
-    text-align: center;
-}}
+if bg_base64:
+    bg_css = f"""
+    <style>
+    .stApp {{
+        background: linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), 
+                    url("data:image/jpeg;base64,{bg_base64}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
+    </style>
+    """
+    st.markdown(bg_css, unsafe_allow_html=True)
 
-.poetry-text {{
-    font-size: 20px;
-    color: #1B5E20;
-    font-weight: bold;
-    line-height: 1.8;
-}}
-
-.stButton>button {{
-    background-color: #2E7D32 !important;
-    color: white !important;
-    border-radius: 25px !important;
-    padding: 12px 28px !important;
-    font-weight: bold !important;
-    border: none !important;
-}}
-</style>
-"""
-st.markdown(bg_css, unsafe_allow_html=True)
+# Custom Styling for Cards and Buttons
+st.markdown("""
+    <style>
+    .heart-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    .poetry-text {
+        font-size: 20px;
+        color: #1B5E20;
+        font-weight: bold;
+        line-height: 1.8;
+    }
+    .stButton>button {
+        background-color: #2E7D32 !important;
+        color: white !important;
+        border-radius: 25px !important;
+        padding: 12px 28px !important;
+        font-weight: bold !important;
+        border: none !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 🌟 APP CONTENT
+# 🌟 APP HEADER
 # -----------------------------------------------------------------------------
 
 st.title("❤️ Assalam-o-Alaikum Baba!")
@@ -73,35 +92,37 @@ st.caption(f"📅 Aaj Ki Tareekh: {datetime.date.today().strftime('%B %d, %Y')}"
 st.write("---")
 
 # -----------------------------------------------------------------------------
-# 📸 SECTION 1: 5 LOCAL PHOTOS GALLERY SLIDER
+# 📸 SECTION 1: 5 PHOTOS SLIDER (SAFE LOADING)
 # -----------------------------------------------------------------------------
+
 st.subheader("🖼️ Humari Pyari Yaadein (5 Special Photos)")
 
-# 5 Photos ki List aur Unke Captions
-images_data = [
-    {"path": "images/pic1.jpg", "caption": "1. Aapke Saath Har Lamha Khaas Hai ❤️"},
-    {"path": "images/pic2.jpg", "caption": "2. Baba — Mere Sar Ka Saaya 👑"},
-    {"path": "images/pic3.jpg", "caption": "3. Aapki Smile Meri Sabse Badi Daulat 😊"},
-    {"path": "images/pic4.jpg", "caption": "4. Purani Khubsurat Yaadein 📸"},
-    {"path": "images/pic5.jpg", "caption": "5. Hamesha Aise Hi Muskurate Rahein! 🤲"}
+captions = [
+    "1. Aapke Saath Har Lamha Khaas Hai ❤️",
+    "2. Baba — Mere Sar Ka Saaya 👑",
+    "3. Aapki Smile Meri Sabse Badi Daulat 😊",
+    "4. Purani Khubsurat Yaadein 📸",
+    "5. Hamesha Aise Hi Muskurate Rahein! 🤲"
 ]
 
-# Slider/Selectbox to browse 5 photos
-selected_idx = st.slider("Photo Badalne Ke Liye Slider Aage Karein:", 1, 5, 1) - 1
+# Slider for selecting photos 1 to 5
+selected_num = st.slider("Photo Badalne Ke Liye Slider Move Karein:", 1, 5, 1)
 
-current_img = images_data[selected_idx]
+# Dynamic Image path finder
+img_key = f"pic{selected_num}"
+img_path = find_image_path(img_key)
 
-# Check if image exists before rendering
-if os.path.exists(current_img["path"]):
-    st.image(current_img["path"], caption=current_img["caption"], use_container_width=True)
+if img_path:
+    st.image(img_path, caption=captions[selected_num - 1], use_container_width=True)
 else:
-    st.warning(f"⚠️ Image '{current_img['path']}' nahi mili! Barae meharbani images folder mein photo save karein.")
+    st.error(f"⚠️ Image 'images/pic{selected_num}' nahi mili! Please check karein ke photo 'images' folder me exist karti hai ya nahi.")
 
 st.write("---")
 
 # -----------------------------------------------------------------------------
 # 📜 SECTION 2: MUHABBAT BHARI LINES
 # -----------------------------------------------------------------------------
+
 st.markdown("""
     <div class="heart-card">
         <p class="poetry-text">
@@ -115,8 +136,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 🤗 SECTION 3: MAGIC BUTTON
+# 🤗 SECTION 3: MAGIC BUTTON & GREETING
 # -----------------------------------------------------------------------------
+
+current_hour = datetime.datetime.now().hour
+if current_hour < 12:
+    greeting = "Subah Bakhair Baba! ☀️ Aaj ki chai pi li aapne?"
+elif 12 <= current_hour < 17:
+    greeting = "Dopahar Bakhair Baba! 🌤️ Khana waqt par kha lijiyega."
+elif 17 <= current_hour < 21:
+    greeting = "Shaam Bakhair Baba! ☕ Aaj shaam saath baithte hain!"
+else:
+    greeting = "Shab Bakhair Baba! 🌙 Sukoon ki neend soyein, main hu na!"
+
+st.info(f"💡 **Aaj Ka Paigham:** {greeting}")
+
+st.write("---")
 st.subheader("🤗 Baba, Meri Yaad Aaye Toh Yahan Click Karein")
 
 love_messages = [
