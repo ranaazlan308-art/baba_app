@@ -1,1 +1,8 @@
-streamlit
+baba_app/
+│── baba.py          <-- Aapka Python code
+│── requirements.txt <-- Isme 'streamlit' likha ho
+└── images/          <-- Yeh folder lazmi ho
+    ├── pic1.jpg     <-- Photos iske andar hon
+    ├── pic2.png
+    ├── koi_bhi_naam.jpeg
+    └── ...
