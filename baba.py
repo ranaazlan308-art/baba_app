@@ -1,40 +1,4 @@
-import streamlit as st
-import datetime
-import os
-import base64
 
-# Page Configuration
-st.set_page_config(
-    page_title="Baba's Special Corner",
-    page_icon="❤️",
-    layout="centered"
-)
-
-# -----------------------------------------------------------------------------
-# 🛠️ HELPER FUNCTIONS (IMAGE FINDER & BASE64 CONVERTER)
-# -----------------------------------------------------------------------------
-
-def find_image_path(base_name):
-    """
-    Check karega ke image jpg, JPG, png, ya jpeg me se kisi bhi naam se exist karti hai ya nahi.
-    """
-    extensions = ['.jpg', '.JPG', '.png', '.PNG', '.jpeg', '.JPEG']
-    for ext in extensions:
-        full_path = os.path.join("images", f"{base_name}{ext}")
-        if os.path.exists(full_path):
-            return full_path
-    return None
-
-def get_image_base64(image_path):
-    """Local image ko base64 CSS background ke liye convert karta hai."""
-    if image_path and os.path.exists(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-    return ""
-
-# -----------------------------------------------------------------------------
-# 🖼️ BACKGROUND IMAGE SETUP (pic1)
-# -----------------------------------------------------------------------------
 
 bg_img_path = find_image_path("pic1")
 bg_base64 = get_image_base64(bg_img_path)
